@@ -2,7 +2,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(SphereCollider))]
-public class PickUp : MonoBehaviour
+public class APickUp : MonoBehaviour
 {
     private SphereCollider triggerArea;
 
