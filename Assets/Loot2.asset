@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f364ba9e46662154aafb65d7cb016830, type: 3}
-  m_Name: Loot1
-  m_EditorClassIdentifier: Assembly-CSharp::AItemS0
-  itemName: Loot1
-  icon: {fileID: 21300000, guid: f6023488e4a20fe4b8553f0703181e6d, type: 3}
-  maxStackSize: 10
+  m_Name: Loot2
+  m_EditorClassIdentifier: Assembly-CSharp::AItemSO
+  itemName: Loot2
+  icon: {fileID: 21300000, guid: 69b9dd602f9cc28449edd8cc798ea9f2, type: 3}
+  maxStackSize: 1
   itemPrefab: {fileID: 0}
   handItemPrefab: {fileID: 0}
