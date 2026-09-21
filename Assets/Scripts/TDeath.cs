@@ -8,7 +8,10 @@ public class TDeath : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Vector3 currentPos = other.transform.position;
+        Quaternion currentRot = other.transform.rotation;
         triggerdeath = other.GetComponent<BoxCollider>();
         Destroy(GameObject.FindWithTag("Player"));
+        TRespawn.RespawnPlayer(currentPos, currentRot);
     }
 }
