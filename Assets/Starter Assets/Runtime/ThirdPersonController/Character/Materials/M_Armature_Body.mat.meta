@@ -9,7 +9,7 @@ NativeFormatImporter:
 AssetOrigin:
   serializedVersion: 1
   productId: 196526
-  packageName: 'Starter Assets: Character Controllers | URP'
-  packageVersion: 2.0
+  packageName: First Person + Third Person | Character Controllers
+  packageVersion: 2.0.1
   assetPath: Assets/Starter Assets/Runtime/ThirdPersonController/Character/Materials/M_Armature_Body.mat
-  uploadId: 988818
+  uploadId: 998422

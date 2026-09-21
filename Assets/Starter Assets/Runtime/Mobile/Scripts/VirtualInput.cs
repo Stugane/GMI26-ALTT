@@ -1,28 +1,31 @@
 using StarterAssets;
 using UnityEngine;
 
-public class VirtualInput : MonoBehaviour
+namespace StarterAssets
 {
-    [Header("Output")]
-    public StarterAssetsInputs StarterAssetsInputs;
-
-    public void VirtualMoveInput(Vector2 virtualMoveDirection)
+    public class VirtualInput : MonoBehaviour
     {
-        StarterAssetsInputs.MoveInput(virtualMoveDirection);
-    }
+        [Header("Output")]
+        public StarterAssetsInputs StarterAssetsInputs;
 
-    public void VirtualLookInput(Vector2 virtualLookDirection)
-    {
-        StarterAssetsInputs.LookInput(virtualLookDirection);
-    }
+        public void VirtualMoveInput(Vector2 virtualMoveDirection)
+        {
+            StarterAssetsInputs.MoveInput(virtualMoveDirection);
+        }
 
-    public void VirtualJumpInput(bool virtualJumpState)
-    {
-        StarterAssetsInputs.JumpInput(virtualJumpState);
-    }
+        public void VirtualLookInput(Vector2 virtualLookDirection)
+        {
+            StarterAssetsInputs.LookInput(virtualLookDirection);
+        }
 
-    public void VirtualSprintInput(bool virtualSprintState)
-    {
-        StarterAssetsInputs.SprintInput(virtualSprintState);
+        public void VirtualJumpInput(bool virtualJumpState)
+        {
+            StarterAssetsInputs.JumpInput(virtualJumpState);
+        }
+
+        public void VirtualSprintInput(bool virtualSprintState)
+        {
+            StarterAssetsInputs.SprintInput(virtualSprintState);
+        }
     }
 }

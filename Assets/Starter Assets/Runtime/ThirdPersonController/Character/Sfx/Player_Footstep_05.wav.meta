@@ -23,7 +23,7 @@ AudioImporter:
 AssetOrigin:
   serializedVersion: 1
   productId: 196526
-  packageName: 'Starter Assets: Character Controllers | URP'
-  packageVersion: 2.0
+  packageName: First Person + Third Person | Character Controllers
+  packageVersion: 2.0.1
   assetPath: Assets/Starter Assets/Runtime/ThirdPersonController/Character/Sfx/Player_Footstep_05.wav
-  uploadId: 988818
+  uploadId: 998422
