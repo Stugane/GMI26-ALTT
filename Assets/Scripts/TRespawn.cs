@@ -19,38 +19,22 @@ public class TRespawn : MonoBehaviour
     // Update is called once per frame
     public static void RespawnPlayer(Vector3 deathPosition, Quaternion deathRotation)
     {
-        if (instance == null) return;
+        //if (instance == null) return;
+        instance.SpawnNewPlayerInstance();
         if (instance.DeathObjectPrefab != null)
         {
             Instantiate(instance.DeathObjectPrefab, deathPosition, deathRotation);
             Debug.Log("Death object left behind.");
         }
-        instance.SpawnNewPlayerInstance();
+        
     }
          private void SpawnNewPlayerInstance()
     {
-        if (PlayerCharacter == null) return;
+        //if (PlayerCharacter == null) return;
 
         GameObject newPlayer = Instantiate(PlayerCharacter, transform.position, transform.rotation);
 
-        newPlayer.tag = "Player"; //Adds the newly spawned clone the "Player" tag
-        Transform cameraTargetAnchor = newPlayer.transform.Find("PlayerCameraRoot");
-
-            cameraTargetAnchor.gameObject.tag = "CinemachineTarget";
-
-        var vCam = Object.FindAnyObjectByType<CinemachineCamera>();
-        if (vCam != null)
-        {
-            vCam.Follow = cameraTargetAnchor;
-            vCam.LookAt = cameraTargetAnchor;
-        }
-        var starterInput = newPlayer.GetComponent<StarterAssets.StarterAssetsInputs>();
-        if (starterInput != null)
-        {
-            starterInput.cursorLocked = true;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
+        //newPlayer.tag = "Player"; //Adds the newly spawned clone the "Player" tag
 
         Debug.Log("Player respawned.");
     }
