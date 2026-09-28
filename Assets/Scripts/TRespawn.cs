@@ -1,5 +1,6 @@
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class TRespawn : MonoBehaviour
 {
@@ -25,6 +26,11 @@ public class TRespawn : MonoBehaviour
         {
             Instantiate(instance.DeathObjectPrefab, deathPosition, deathRotation);
             Debug.Log("Death object left behind.");
+            if (instance.DeathObjectPrefab != null)
+            {
+                Instantiate(instance.DeathObjectPrefab, deathPosition, deathRotation);
+                Debug.Log("Death object left behind.");
+            }
         }
         
     }
@@ -33,6 +39,12 @@ public class TRespawn : MonoBehaviour
         //if (PlayerCharacter == null) return;
 
         GameObject newPlayer = Instantiate(PlayerCharacter, transform.position, transform.rotation);
+
+        //EventSystem duplicateEventSystem = newPlayer.GetComponentInChildren<EventSystem>();
+        //if (duplicateEventSystem != null)
+        //{
+        //    Destroy(duplicateEventSystem.gameObject);
+        //}
 
         //newPlayer.tag = "Player"; //Adds the newly spawned clone the "Player" tag
 
