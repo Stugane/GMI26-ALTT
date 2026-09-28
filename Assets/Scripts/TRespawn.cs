@@ -40,11 +40,11 @@ public class TRespawn : MonoBehaviour
 
         GameObject newPlayer = Instantiate(PlayerCharacter, transform.position, transform.rotation);
 
-        //EventSystem duplicateEventSystem = newPlayer.GetComponentInChildren<EventSystem>();
-        //if (duplicateEventSystem != null)
-        //{
-        //    Destroy(duplicateEventSystem.gameObject);
-        //}
+        EventSystem duplicateEventSystem = newPlayer.GetComponentInChildren<EventSystem>();
+        if (duplicateEventSystem != null)
+        {
+            Destroy(duplicateEventSystem.gameObject);
+        }
 
         //newPlayer.tag = "Player"; //Adds the newly spawned clone the "Player" tag
 
