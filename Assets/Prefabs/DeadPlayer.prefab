@@ -524,7 +524,7 @@ GameObject:
   - component: {fileID: 7726187198789326599}
   - component: {fileID: 2950173455490570041}
   m_Layer: 8
-  m_Name: TLetTheBodiesHitTheFloor
+  m_Name: DeadPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
