@@ -524,8 +524,8 @@ GameObject:
   - component: {fileID: 7726187198789326599}
   - component: {fileID: 2950173455490570041}
   m_Layer: 8
-  m_Name: DeadPlayer
-  m_TagString: Untagged
+  m_Name: DeadCorpse
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

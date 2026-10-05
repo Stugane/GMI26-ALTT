@@ -57,6 +57,7 @@ public class AEnemyNavMov : MonoBehaviour
                 Chase();
                 break;
         }
+        player = GameObject.FindGameObjectWithTag("Player").transform; // Update player reference every frame
     }
 
     // -------- PATROL -------- //
@@ -110,6 +111,8 @@ public class AEnemyNavMov : MonoBehaviour
     // -------- DETECTION -------- //
     bool PlayerInChaseRange()
     {
+        if (player == null) player = GameObject.FindGameObjectWithTag("Player").transform;
+
         Vector3 dirToPlayer = player.position - transform.position;
         float dist = dirToPlayer.magnitude;
 

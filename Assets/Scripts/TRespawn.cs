@@ -20,7 +20,7 @@ public class TRespawn : MonoBehaviour
     // Update is called once per frame
     public static void RespawnPlayer(Vector3 deathPosition, Quaternion deathRotation)
     {
-        //if (instance == null) return;
+        if (instance == null) return;
         instance.SpawnNewPlayerInstance();
         if (instance.DeathObjectPrefab != null)
         {
@@ -36,8 +36,8 @@ public class TRespawn : MonoBehaviour
     }
          private void SpawnNewPlayerInstance()
     {
-        //if (PlayerCharacter == null) return;
-
+        if (PlayerCharacter == null) return;
+     
         GameObject newPlayer = Instantiate(PlayerCharacter, transform.position, transform.rotation);
 
         EventSystem duplicateEventSystem = newPlayer.GetComponentInChildren<EventSystem>();
@@ -45,7 +45,6 @@ public class TRespawn : MonoBehaviour
         {
             Destroy(duplicateEventSystem.gameObject);
         }
-
         //newPlayer.tag = "Player"; //Adds the newly spawned clone the "Player" tag
 
         Debug.Log("Player respawned.");
