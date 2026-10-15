@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class AInventory : MonoBehaviour
 {
@@ -9,9 +10,14 @@ public class AInventory : MonoBehaviour
     public GameObject hotbarObj;
     public GameObject inventorySlotParent;
 
+    public Image dragIcon;
+
     private List<ASlot> inventorySlots = new List<ASlot>();
     private List<ASlot> hotbarSlots = new List<ASlot>();
     private List<ASlot> allSlots = new List<ASlot>();
+
+    private ASlot draggedSlot = null;
+    private bool isDragging = false;
 
     private void Awake()
     {
@@ -37,6 +43,10 @@ public class AInventory : MonoBehaviour
         {
             AddItem(loot2, 1);
         }
+
+        StartDrag();
+        UpdateDragItemDestination();
+        EndDrag();
     }
 
     public void AddItem(AItemSO itemToAdd, int amount)
@@ -80,6 +90,103 @@ public class AInventory : MonoBehaviour
         if(remaining > 0)
         {
             Debug.Log("Inventory is full, couldn't add " + remaining + " of " + itemToAdd.itemName);
+        }
+    }
+
+    private void StartDrag()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            ASlot hovered = GetHoveredSlot();
+
+            if(hovered != null && hovered.HasItem())
+            {
+                draggedSlot = hovered;
+                isDragging = true;
+
+                //Show drag item
+                dragIcon.sprite = hovered.GetItem().icon;
+                dragIcon.color = new Color(1, 1, 1, 0.5f);
+                dragIcon.enabled = true;
+            }
+        }
+    }
+
+    private void EndDrag()
+    {
+        if(Input.GetMouseButtonUp(0) && isDragging)
+        {
+            ASlot hovered = GetHoveredSlot();
+
+            if(hovered != null)
+            {
+                HandleDrop(draggedSlot, hovered);
+
+                dragIcon.enabled = false;
+
+                draggedSlot = null;
+                isDragging = false;
+            }
+        }
+    }
+
+    private ASlot GetHoveredSlot()
+    {
+        foreach(ASlot s in allSlots)
+        {
+            if (s.hovering)
+                return s;
+        }
+
+        return null;
+    }
+
+    private void HandleDrop(ASlot from, ASlot to)
+    {
+        if(from == to) return;
+
+
+        //Stacking
+        if(to.HasItem() && to.GetItem() == from.GetItem())
+        {
+            int max = to.GetItem().maxStackSize;
+            int space = max - to.GetAmount();
+
+            if(space > 0)
+            {
+                int move = Mathf.Min(space, from.GetAmount());
+
+                to.SetItem(to.GetItem(), to.GetAmount() + move);
+                from.SetItem (from.GetItem(), from.GetAmount() - move);
+
+                if(from.GetAmount() <= 0)
+                    from.ClearSlot();
+
+                return;
+            }
+        }
+
+        //Different Item
+        if (to.HasItem())
+        {
+            AItemSO tempItem = to.GetItem();
+            int tempAmount = to.GetAmount();
+
+            to.SetItem(from.GetItem(), from.GetAmount());
+            from.SetItem(tempItem, tempAmount);
+            return;
+        }
+
+        //Empty Slot
+        to.SetItem(from.GetItem(), from.GetAmount());
+        from.ClearSlot();
+    }
+
+    private void UpdateDragItemDestination()
+    {
+        if (isDragging)
+        {
+            dragIcon.transform.position = Input.mousePosition;
         }
     }
 }
