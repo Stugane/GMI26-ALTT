@@ -9,8 +9,15 @@ public class AInventory : MonoBehaviour
 
     public GameObject hotbarObj;
     public GameObject inventorySlotParent;
+    public GameObject container;
 
     public Image dragIcon;
+
+    public float pickupRange = 4;
+    private AItem lookedAtItem = null;
+    public Material highlightMaterial;
+    private Material originalMaterial;
+    private Renderer lookedAtRenderer = null;
 
     private List<ASlot> inventorySlots = new List<ASlot>();
     private List<ASlot> hotbarSlots = new List<ASlot>();
@@ -35,6 +42,7 @@ public class AInventory : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        /*
         if (Input.GetKeyDown(KeyCode.Q))
         {
             AddItem(loot1, 3);
@@ -43,6 +51,17 @@ public class AInventory : MonoBehaviour
         {
             AddItem(loot2, 1);
         }
+        */
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            container.SetActive(!container.activeInHierarchy);
+            //Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
+            //Cursor.visible = !Cursor.visible;
+        }
+
+        DetectLookedAtItem();
+        Pickup();
 
         StartDrag();
         UpdateDragItemDestination();
@@ -187,6 +206,45 @@ public class AInventory : MonoBehaviour
         if (isDragging)
         {
             dragIcon.transform.position = Input.mousePosition;
+        }
+    }
+
+    private void Pickup()
+    {
+        if(lookedAtRenderer != null && Input.GetKeyDown(KeyCode.E))
+        {
+            AItem item = lookedAtRenderer.GetComponent<AItem>();
+            if (item != null)
+            {
+                AddItem(item.item, item.amount);
+                Destroy(item.gameObject);
+            }
+        }
+    }
+
+    private void DetectLookedAtItem()
+    {
+        if(lookedAtRenderer != null)
+        {
+            lookedAtRenderer.material = originalMaterial;
+            lookedAtRenderer = null;
+            originalMaterial = null;
+        }
+
+        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        if(Physics.Raycast(ray, out RaycastHit hit, pickupRange))
+        {
+            AItem item = hit.collider.GetComponent<AItem>();
+            if (item != null)
+            {
+                Renderer rend = item.GetComponent<Renderer>();
+                if(rend != null)
+                {
+                    originalMaterial = rend.material;
+                    rend.material = highlightMaterial;
+                    lookedAtRenderer = rend;
+                }
+            }
         }
     }
 }
