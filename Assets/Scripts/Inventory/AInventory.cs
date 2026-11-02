@@ -4,27 +4,48 @@ using UnityEngine.UI;
 
 public class AInventory : MonoBehaviour
 {
+    [Header("Items")]
+    [Tooltip("Stone")]
     public AItemSO loot1;
+
+    [Tooltip("Axe")]
     public AItemSO loot2;
 
+    [Space(15)]
+
+    [Header("Inventory UI")]
+    [Tooltip("The hotbar UI object")]
     public GameObject hotbarObj;
+
+    [Tooltip("Parent object containing inventory slots")]
     public GameObject inventorySlotParent;
+
     public GameObject container;
+
+    [Space(15)]
+
+    [Header("Item Interaction")]
+    [Tooltip("Maximum distance for picking up items")]
+    public float pickupRange = 4;
 
     public Image dragIcon;
 
-    public float pickupRange = 4;
+    /*
     private AItem lookedAtItem = null;
     public Material highlightMaterial;
     private Material originalMaterial;
     private Renderer lookedAtRenderer = null;
+    */
 
     private List<ASlot> inventorySlots = new List<ASlot>();
     private List<ASlot> hotbarSlots = new List<ASlot>();
     private List<ASlot> allSlots = new List<ASlot>();
+    private List<AItem> nearbyItems = new List<AItem>();
 
     private ASlot draggedSlot = null;
-    private bool isDragging = false;
+
+    [HideInInspector]
+    public bool isDragging = false;
 
     private void Awake()
     {
@@ -60,7 +81,10 @@ public class AInventory : MonoBehaviour
             //Cursor.visible = !Cursor.visible;
         }
 
+        /*
         DetectLookedAtItem();
+        */
+
         Pickup();
 
         StartDrag();
@@ -110,6 +134,16 @@ public class AInventory : MonoBehaviour
         {
             Debug.Log("Inventory is full, couldn't add " + remaining + " of " + itemToAdd.itemName);
         }
+    }
+
+    [ContextMenu("Debug/Print Slot Information")]
+    private void PrintSlotInformation()
+    {
+        Debug.Log("Inventory slots: " +
+            inventorySlotParent.GetComponentsInChildren<ASlot>().Length);
+
+        Debug.Log("Hotbar slots: " +
+            hotbarObj.GetComponentsInChildren<ASlot>().Length);
     }
 
     private void StartDrag()
@@ -209,6 +243,70 @@ public class AInventory : MonoBehaviour
         }
     }
 
+    public void AddNearbyItem(AItem item)
+    {
+        if (item != null && !nearbyItems.Contains(item))
+        {
+            nearbyItems.Add(item);
+            Debug.Log("Item nearby: " + item.item.itemName);
+        }
+    }
+
+    public void RemoveNearbyItem(AItem item)
+    {
+        if (item != null)
+        {
+            nearbyItems.Remove(item);
+        }
+    }
+
+    private void Pickup()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log("E PRESSED");
+            Debug.Log("Nearby items: " + nearbyItems.Count);
+
+            AItem closestItem = null;
+            float closestDistance = Mathf.Infinity;
+
+            foreach (AItem item in nearbyItems)
+            {
+                if (item == null)
+                    continue;
+
+                float distance = Vector3.Distance(
+                    transform.position,
+                    item.transform.position
+                );
+
+                Debug.Log("Item: " + item.name + " Distance: " + distance);
+
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestItem = item;
+                }
+            }
+
+            if (closestItem != null)
+            {
+                Debug.Log("PICKING UP: " + closestItem.name);
+
+                AddItem(closestItem.item, closestItem.amount);
+
+                nearbyItems.Remove(closestItem);
+
+                Destroy(closestItem.gameObject);
+            }
+            else
+            {
+                Debug.Log("NO ITEM TO PICK UP");
+            }
+        }
+    }
+
+    /*
     private void Pickup()
     {
         if(lookedAtRenderer != null && Input.GetKeyDown(KeyCode.E))
@@ -247,4 +345,5 @@ public class AInventory : MonoBehaviour
             }
         }
     }
+    */
 }

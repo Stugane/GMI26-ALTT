@@ -3880,7 +3880,6 @@ MonoBehaviour:
   container: {fileID: 691849180}
   dragIcon: {fileID: 119099452}
   pickupRange: 4
-  highlightMaterial: {fileID: 2100000, guid: 385a9aeeaf263bc4098ae2fefa73e6ba, type: 2}
 --- !u!1 &1775544116
 GameObject:
   m_ObjectHideFlags: 0
