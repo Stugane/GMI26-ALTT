@@ -3878,8 +3878,11 @@ MonoBehaviour:
   hotbarObj: {fileID: 1798697361}
   inventorySlotParent: {fileID: 342714781}
   container: {fileID: 691849180}
-  dragIcon: {fileID: 119099452}
   pickupRange: 4
+  dragIcon: {fileID: 119099452}
+  equippedOpacity: 0.9
+  normalOpacity: 0.58
+  isDragging: 0
 --- !u!1 &1775544116
 GameObject:
   m_ObjectHideFlags: 0

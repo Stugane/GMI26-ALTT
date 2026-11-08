@@ -37,6 +37,12 @@ public class AInventory : MonoBehaviour
     private Renderer lookedAtRenderer = null;
     */
 
+    private int equippedHotbarIndex = 0; //0-5
+    public float equippedOpacity = 0.9f;
+    public float normalOpacity = 0.58f;
+    public Transform hand;
+    private GameObject currentHandItem;
+
     private List<ASlot> inventorySlots = new List<ASlot>();
     private List<ASlot> hotbarSlots = new List<ASlot>();
     private List<ASlot> allSlots = new List<ASlot>();
@@ -90,6 +96,10 @@ public class AInventory : MonoBehaviour
         StartDrag();
         UpdateDragItemDestination();
         EndDrag();
+
+        HandleHotbarSelection();
+        HandleDropEquippedItem();
+        UpdateHotbarOpacity();
     }
 
     public void AddItem(AItemSO itemToAdd, int amount)
@@ -298,6 +308,7 @@ public class AInventory : MonoBehaviour
                 nearbyItems.Remove(closestItem);
 
                 Destroy(closestItem.gameObject);
+                EquipHandItem();
             }
             else
             {
@@ -346,4 +357,68 @@ public class AInventory : MonoBehaviour
         }
     }
     */
+
+    private void UpdateHotbarOpacity()
+    {
+        for (int i = 0; i < hotbarSlots.Count; i++)
+        {
+            Image icon = hotbarSlots[i].GetComponent<Image>();
+            if (icon != null)
+            {
+                icon.color = (i == equippedHotbarIndex) ? new Color (1, 1, 1, equippedOpacity) : new Color (1, 1, 1, normalOpacity);
+            }
+        }
+    }
+
+    private void HandleHotbarSelection()
+    {
+        for(int i = 0; i < 6; i++)
+        {
+            if(Input.GetKeyDown((i + 1).ToString()))
+            {
+                equippedHotbarIndex = i;
+                UpdateHotbarOpacity();
+                EquipHandItem();
+            }
+        }
+    }
+
+    private void HandleDropEquippedItem()
+    {
+        if (!Input.GetKeyDown(KeyCode.Q)) return;
+
+        ASlot equippedSlot = hotbarSlots[equippedHotbarIndex];
+
+        if (!equippedSlot.HasItem()) return;
+
+        AItemSO itemSO = equippedSlot.GetItem();
+        GameObject prefab = itemSO.itemPrefab;
+
+        if (prefab == null) return;
+
+        GameObject dropped = Instantiate(prefab, Camera.main.transform.position + Camera.main.transform.forward, Quaternion.identity);
+
+        AItem item = dropped.GetComponent<AItem>();
+        item.item = itemSO;
+        item.amount = equippedSlot.GetAmount();
+
+        equippedSlot.ClearSlot();
+
+        EquipHandItem();
+    }
+
+    private void EquipHandItem()
+    {
+        if(currentHandItem != null) Destroy(currentHandItem);
+
+        ASlot equippedSlot = hotbarSlots[equippedHotbarIndex];
+        if (!equippedSlot.HasItem()) return;
+
+        AItemSO item = equippedSlot.GetItem();
+        if(item.handItemPrefab == null) return;
+
+        currentHandItem = Instantiate(item.handItemPrefab, hand);
+        currentHandItem.transform.localPosition = Vector3.zero;
+        currentHandItem.transform.localRotation = Quaternion.identity;
+    }
 }
