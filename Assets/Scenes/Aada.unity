@@ -3882,6 +3882,7 @@ MonoBehaviour:
   dragIcon: {fileID: 119099452}
   equippedOpacity: 0.9
   normalOpacity: 0.58
+  hand: {fileID: 0}
   isDragging: 0
 --- !u!1 &1775544116
 GameObject:
