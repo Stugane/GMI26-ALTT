@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using TMPro;
 
 public class AInventory : MonoBehaviour
 {
@@ -43,6 +44,17 @@ public class AInventory : MonoBehaviour
     public Transform hand;
     private GameObject currentHandItem;
 
+    //Item Description
+    public GameObject itemDescriptionParent;
+    public Image itemDescriptionImage;
+    public TextMeshProUGUI descriptionItemNameTxt;
+    public TextMeshProUGUI itemDescriptionTxt;
+
+    //Crafting
+    public List<ARecipe> allRecipes = new List<ARecipe>();
+    public Transform craftingGrid;
+    public GameObject craftingBTNprefab;
+
     private List<ASlot> inventorySlots = new List<ASlot>();
     private List<ASlot> hotbarSlots = new List<ASlot>();
     private List<ASlot> allSlots = new List<ASlot>();
@@ -64,6 +76,8 @@ public class AInventory : MonoBehaviour
         Debug.Log("Inventory slots: " + inventorySlots.Count);
         Debug.Log("Hotbar slots: " + hotbarSlots.Count);
         Debug.Log("All slots: " + allSlots.Count);
+
+        PopulateCraftingGrid();
     }
 
     // Update is called once per frame
@@ -100,6 +114,8 @@ public class AInventory : MonoBehaviour
         HandleHotbarSelection();
         HandleDropEquippedItem();
         UpdateHotbarOpacity();
+
+        UpdateItemDescription();
     }
 
     public void AddItem(AItemSO itemToAdd, int amount)
@@ -122,7 +138,10 @@ public class AInventory : MonoBehaviour
                     remaining -= amountToAdd;
 
                     if(remaining <= 0)
+                    {
+                        PopulateCraftingGrid();
                         return;
+                    }
                 }
             }
         }
@@ -136,7 +155,10 @@ public class AInventory : MonoBehaviour
                 remaining -= amountToPlace;
 
                 if (remaining <= 0)
+                {
+                    PopulateCraftingGrid();
                     return;
+                }
             }
         }
 
@@ -144,6 +166,7 @@ public class AInventory : MonoBehaviour
         {
             Debug.Log("Inventory is full, couldn't add " + remaining + " of " + itemToAdd.itemName);
         }
+        PopulateCraftingGrid();
     }
 
     [ContextMenu("Debug/Print Slot Information")]
@@ -405,6 +428,7 @@ public class AInventory : MonoBehaviour
         equippedSlot.ClearSlot();
 
         EquipHandItem();
+        PopulateCraftingGrid();
     }
 
     private void EquipHandItem()
@@ -420,5 +444,105 @@ public class AInventory : MonoBehaviour
         currentHandItem = Instantiate(item.handItemPrefab, hand);
         currentHandItem.transform.localPosition = Vector3.zero;
         currentHandItem.transform.localRotation = Quaternion.identity;
+    }
+
+    private void UpdateItemDescription()
+    {
+        ASlot hoveredSlot = GetHoveredSlot();
+
+        if (hoveredSlot != null)
+        {
+            AItemSO hoveredItem = hoveredSlot.GetItem();
+
+            if (hoveredItem != null)
+            {
+                itemDescriptionParent.SetActive(true);
+                itemDescriptionImage.sprite = hoveredItem.icon;
+                itemDescriptionTxt.text = hoveredItem.description;
+                descriptionItemNameTxt.text = hoveredItem.name;
+                return;
+            }
+        }
+        itemDescriptionParent.SetActive(false);
+    }
+
+    private void PopulateCraftingGrid()
+    {
+        for(int i = craftingGrid.childCount - 1; i >= 0; i--)
+        {
+            Destroy(craftingGrid.GetChild(i).gameObject);
+        }
+
+        foreach(ARecipe recipe in allRecipes)
+        {
+            GameObject btnObj = Instantiate(craftingBTNprefab, craftingGrid);
+
+            Image img = btnObj.transform.GetChild(0).GetComponent<Image>();
+            img.sprite = recipe.result.icon;
+
+            Button btn = btnObj.GetComponent<Button>();
+
+            btn.interactable = CanCraft(recipe);
+            btn.onClick.RemoveAllListeners();
+            btn.onClick.AddListener(() => Craft(recipe));
+        }
+    }
+
+    public void Craft(ARecipe recipe)
+    {
+        if (!CanCraft(recipe))
+        {
+            return;
+        }
+
+        ConsumeIngredients(recipe);
+        AddItem(recipe.result, recipe.resultAmount);
+
+        PopulateCraftingGrid();
+    }
+
+    private void ConsumeIngredients(ARecipe recipe)
+    {
+        foreach(Ingredient ingredient in recipe.ingredients)
+        {
+            int remaining = ingredient.amount;
+
+            foreach(ASlot slot in allSlots)
+            {
+                if(!slot.HasItem()) continue;
+                if (slot.GetItem() != ingredient.item) continue;
+
+                int take = Mathf.Min(slot.GetAmount(), remaining);
+                slot.SetItem(slot.GetItem(), slot.GetAmount() - take);
+
+                if(slot.GetAmount() <= 0)
+                    slot.ClearSlot();
+
+                remaining -= take;
+                if (remaining <= 0)
+                    break;
+            }
+        }
+    }
+
+    public bool CanCraft(ARecipe recipe)
+    {
+        foreach(Ingredient ingredient in recipe.ingredients)
+        {
+            int totalFound = 0;
+
+            foreach(ASlot slot in allSlots)
+            {
+                if(slot.HasItem() && slot.GetItem() == ingredient.item)
+                {
+                    totalFound += slot.GetAmount();
+                }
+            }
+
+            if (totalFound < ingredient.amount)
+                return false;
+        }
+
+        return true;
     }
 }
