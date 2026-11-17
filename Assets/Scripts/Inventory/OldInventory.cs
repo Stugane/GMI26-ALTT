@@ -1,0 +1,548 @@
+//using UnityEngine;
+//using System.Collections.Generic;
+//using UnityEngine.UI;
+//using TMPro;
+
+//public class AInventory : MonoBehaviour
+//{
+//    [Header("Items")]
+//    [Tooltip("Stone")]
+//    public AItemSO loot1;
+
+//    [Tooltip("Axe")]
+//    public AItemSO loot2;
+
+//    [Space(15)]
+
+//    [Header("Inventory UI")]
+//    [Tooltip("The hotbar UI object")]
+//    public GameObject hotbarObj;
+
+//    [Tooltip("Parent object containing inventory slots")]
+//    public GameObject inventorySlotParent;
+
+//    public GameObject container;
+
+//    [Space(15)]
+
+//    [Header("Item Interaction")]
+//    [Tooltip("Maximum distance for picking up items")]
+//    public float pickupRange = 4;
+
+//    public Image dragIcon;
+
+//    /*
+//    private AItem lookedAtItem = null;
+//    public Material highlightMaterial;
+//    private Material originalMaterial;
+//    private Renderer lookedAtRenderer = null;
+//    */
+
+//    private int equippedHotbarIndex = 0; //0-5
+//    public float equippedOpacity = 0.9f;
+//    public float normalOpacity = 0.58f;
+//    public Transform hand;
+//    private GameObject currentHandItem;
+
+//    //Item Description
+//    public GameObject itemDescriptionParent;
+//    public Image itemDescriptionImage;
+//    public TextMeshProUGUI descriptionItemNameTxt;
+//    public TextMeshProUGUI itemDescriptionTxt;
+
+//    //Crafting
+//    public List<ARecipe> allRecipes = new List<ARecipe>();
+//    public Transform craftingGrid;
+//    public GameObject craftingBTNprefab;
+
+//    private List<ASlot> inventorySlots = new List<ASlot>();
+//    private List<ASlot> hotbarSlots = new List<ASlot>();
+//    private List<ASlot> allSlots = new List<ASlot>();
+//    private List<AItem> nearbyItems = new List<AItem>();
+
+//    private ASlot draggedSlot = null;
+
+//    [HideInInspector]
+//    public bool isDragging = false;
+
+//    private void Awake()
+//    {
+//        inventorySlots.AddRange(inventorySlotParent.GetComponentsInChildren<ASlot>());
+//        hotbarSlots.AddRange(hotbarObj.GetComponentsInChildren<ASlot>());
+
+//        allSlots.AddRange(inventorySlots);
+//        allSlots.AddRange(hotbarSlots);
+
+//        Debug.Log("Inventory slots: " + inventorySlots.Count);
+//        Debug.Log("Hotbar slots: " + hotbarSlots.Count);
+//        Debug.Log("All slots: " + allSlots.Count);
+
+//        PopulateCraftingGrid();
+//    }
+
+//    // Update is called once per frame
+//    void Update()
+//    {
+//        /*
+//        if (Input.GetKeyDown(KeyCode.Q))
+//        {
+//            AddItem(loot1, 3);
+//        }
+//        else if (Input.GetKeyDown(KeyCode.G))
+//        {
+//            AddItem(loot2, 1);
+//        }
+//        */
+
+//        if (Input.GetKeyDown(KeyCode.Tab))
+//        {
+//            container.SetActive(!container.activeInHierarchy);
+//            //Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
+//            //Cursor.visible = !Cursor.visible;
+//        }
+
+//        /*
+//        DetectLookedAtItem();
+//        */
+
+//        Pickup();
+
+//        StartDrag();
+//        UpdateDragItemDestination();
+//        EndDrag();
+
+//        HandleHotbarSelection();
+//        HandleDropEquippedItem();
+//        UpdateHotbarOpacity();
+
+//        UpdateItemDescription();
+//    }
+
+//    public void AddItem(AItemSO itemToAdd, int amount)
+//    {
+//        int remaining = amount;
+
+//        foreach(ASlot slot in allSlots)
+//        {
+//            if(slot.HasItem() && slot.GetItem() == itemToAdd)
+//            {
+//                int currentAmount = slot.GetAmount();
+//                int maxStack = itemToAdd.maxStackSize;
+
+//                if(currentAmount < maxStack)
+//                {
+//                    int spaceLeft = maxStack - currentAmount;
+//                    int amountToAdd = Mathf.Min(spaceLeft, remaining);
+
+//                    slot.SetItem(itemToAdd, currentAmount + amountToAdd);
+//                    remaining -= amountToAdd;
+
+//                    if(remaining <= 0)
+//                    {
+//                        PopulateCraftingGrid();
+//                        return;
+//                    }
+//                }
+//            }
+//        }
+
+//        foreach(ASlot slot in allSlots)
+//        {
+//            if (!slot.HasItem())
+//            {
+//                int amountToPlace = Mathf.Min(itemToAdd.maxStackSize, remaining);
+//                slot.SetItem(itemToAdd, amountToPlace);
+//                remaining -= amountToPlace;
+
+//                if (remaining <= 0)
+//                {
+//                    PopulateCraftingGrid();
+//                    return;
+//                }
+//            }
+//        }
+
+//        if(remaining > 0)
+//        {
+//            Debug.Log("Inventory is full, couldn't add " + remaining + " of " + itemToAdd.itemName);
+//        }
+//        PopulateCraftingGrid();
+//    }
+
+//    [ContextMenu("Debug/Print Slot Information")]
+//    private void PrintSlotInformation()
+//    {
+//        Debug.Log("Inventory slots: " +
+//            inventorySlotParent.GetComponentsInChildren<ASlot>().Length);
+
+//        Debug.Log("Hotbar slots: " +
+//            hotbarObj.GetComponentsInChildren<ASlot>().Length);
+//    }
+
+//    private void StartDrag()
+//    {
+//        if (Input.GetMouseButtonDown(0))
+//        {
+//            ASlot hovered = GetHoveredSlot();
+
+//            if(hovered != null && hovered.HasItem())
+//            {
+//                draggedSlot = hovered;
+//                isDragging = true;
+
+//                //Show drag item
+//                dragIcon.sprite = hovered.GetItem().icon;
+//                dragIcon.color = new Color(1, 1, 1, 0.5f);
+//                dragIcon.enabled = true;
+//            }
+//        }
+//    }
+
+//    private void EndDrag()
+//    {
+//        if(Input.GetMouseButtonUp(0) && isDragging)
+//        {
+//            ASlot hovered = GetHoveredSlot();
+
+//            if(hovered != null)
+//            {
+//                HandleDrop(draggedSlot, hovered);
+
+//                dragIcon.enabled = false;
+
+//                draggedSlot = null;
+//                isDragging = false;
+//            }
+//        }
+//    }
+
+//    private ASlot GetHoveredSlot()
+//    {
+//        foreach(ASlot s in allSlots)
+//        {
+//            if (s.hovering)
+//                return s;
+//        }
+
+//        return null;
+//    }
+
+//    private void HandleDrop(ASlot from, ASlot to)
+//    {
+//        if(from == to) return;
+
+
+//        //Stacking
+//        if(to.HasItem() && to.GetItem() == from.GetItem())
+//        {
+//            int max = to.GetItem().maxStackSize;
+//            int space = max - to.GetAmount();
+
+//            if(space > 0)
+//            {
+//                int move = Mathf.Min(space, from.GetAmount());
+
+//                to.SetItem(to.GetItem(), to.GetAmount() + move);
+//                from.SetItem (from.GetItem(), from.GetAmount() - move);
+
+//                if(from.GetAmount() <= 0)
+//                    from.ClearSlot();
+
+//                return;
+//            }
+//        }
+
+//        //Different Item
+//        if (to.HasItem())
+//        {
+//            AItemSO tempItem = to.GetItem();
+//            int tempAmount = to.GetAmount();
+
+//            to.SetItem(from.GetItem(), from.GetAmount());
+//            from.SetItem(tempItem, tempAmount);
+//            return;
+//        }
+
+//        //Empty Slot
+//        to.SetItem(from.GetItem(), from.GetAmount());
+//        from.ClearSlot();
+//    }
+
+//    private void UpdateDragItemDestination()
+//    {
+//        if (isDragging)
+//        {
+//            dragIcon.transform.position = Input.mousePosition;
+//        }
+//    }
+
+//    public void AddNearbyItem(AItem item)
+//    {
+//        if (item != null && !nearbyItems.Contains(item))
+//        {
+//            nearbyItems.Add(item);
+//            Debug.Log("Item nearby: " + item.item.itemName);
+//        }
+//    }
+
+//    public void RemoveNearbyItem(AItem item)
+//    {
+//        if (item != null)
+//        {
+//            nearbyItems.Remove(item);
+//        }
+//    }
+
+//    private void Pickup()
+//    {
+//        if (Input.GetKeyDown(KeyCode.E))
+//        {
+//            Debug.Log("E PRESSED");
+//            Debug.Log("Nearby items: " + nearbyItems.Count);
+
+//            AItem closestItem = null;
+//            float closestDistance = Mathf.Infinity;
+
+//            foreach (AItem item in nearbyItems)
+//            {
+//                if (item == null)
+//                    continue;
+
+//                float distance = Vector3.Distance(
+//                    transform.position,
+//                    item.transform.position
+//                );
+
+//                Debug.Log("Item: " + item.name + " Distance: " + distance);
+
+//                if (distance < closestDistance)
+//                {
+//                    closestDistance = distance;
+//                    closestItem = item;
+//                }
+//            }
+
+//            if (closestItem != null)
+//            {
+//                Debug.Log("PICKING UP: " + closestItem.name);
+
+//                AddItem(closestItem.item, closestItem.amount);
+
+//                nearbyItems.Remove(closestItem);
+
+//                Destroy(closestItem.gameObject);
+//                EquipHandItem();
+//            }
+//            else
+//            {
+//                Debug.Log("NO ITEM TO PICK UP");
+//            }
+//        }
+//    }
+
+//    /*
+//    private void Pickup()
+//    {
+//        if(lookedAtRenderer != null && Input.GetKeyDown(KeyCode.E))
+//        {
+//            AItem item = lookedAtRenderer.GetComponent<AItem>();
+//            if (item != null)
+//            {
+//                AddItem(item.item, item.amount);
+//                Destroy(item.gameObject);
+//            }
+//        }
+//    }
+
+//    private void DetectLookedAtItem()
+//    {
+//        if(lookedAtRenderer != null)
+//        {
+//            lookedAtRenderer.material = originalMaterial;
+//            lookedAtRenderer = null;
+//            originalMaterial = null;
+//        }
+
+//        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+//        if(Physics.Raycast(ray, out RaycastHit hit, pickupRange))
+//        {
+//            AItem item = hit.collider.GetComponent<AItem>();
+//            if (item != null)
+//            {
+//                Renderer rend = item.GetComponent<Renderer>();
+//                if(rend != null)
+//                {
+//                    originalMaterial = rend.material;
+//                    rend.material = highlightMaterial;
+//                    lookedAtRenderer = rend;
+//                }
+//            }
+//        }
+//    }
+//    */
+
+//    private void UpdateHotbarOpacity()
+//    {
+//        for (int i = 0; i < hotbarSlots.Count; i++)
+//        {
+//            Image icon = hotbarSlots[i].GetComponent<Image>();
+//            if (icon != null)
+//            {
+//                icon.color = (i == equippedHotbarIndex) ? new Color (1, 1, 1, equippedOpacity) : new Color (1, 1, 1, normalOpacity);
+//            }
+//        }
+//    }
+
+//    private void HandleHotbarSelection()
+//    {
+//        for(int i = 0; i < 6; i++)
+//        {
+//            if(Input.GetKeyDown((i + 1).ToString()))
+//            {
+//                equippedHotbarIndex = i;
+//                UpdateHotbarOpacity();
+//                EquipHandItem();
+//            }
+//        }
+//    }
+
+//    private void HandleDropEquippedItem()
+//    {
+//        if (!Input.GetKeyDown(KeyCode.Q)) return;
+
+//        ASlot equippedSlot = hotbarSlots[equippedHotbarIndex];
+
+//        if (!equippedSlot.HasItem()) return;
+
+//        AItemSO itemSO = equippedSlot.GetItem();
+//        GameObject prefab = itemSO.itemPrefab;
+
+//        if (prefab == null) return;
+
+//        GameObject dropped = Instantiate(prefab, Camera.main.transform.position + Camera.main.transform.forward, Quaternion.identity);
+
+//        AItem item = dropped.GetComponent<AItem>();
+//        item.item = itemSO;
+//        item.amount = equippedSlot.GetAmount();
+
+//        equippedSlot.ClearSlot();
+
+//        EquipHandItem();
+//        PopulateCraftingGrid();
+//    }
+
+//    private void EquipHandItem()
+//    {
+//        if(currentHandItem != null) Destroy(currentHandItem);
+
+//        ASlot equippedSlot = hotbarSlots[equippedHotbarIndex];
+//        if (!equippedSlot.HasItem()) return;
+
+//        AItemSO item = equippedSlot.GetItem();
+//        if(item.handItemPrefab == null) return;
+
+//        currentHandItem = Instantiate(item.handItemPrefab, hand);
+//        currentHandItem.transform.localPosition = Vector3.zero;
+//        currentHandItem.transform.localRotation = Quaternion.identity;
+//    }
+
+//    private void UpdateItemDescription()
+//    {
+//        ASlot hoveredSlot = GetHoveredSlot();
+
+//        if (hoveredSlot != null)
+//        {
+//            AItemSO hoveredItem = hoveredSlot.GetItem();
+
+//            if (hoveredItem != null)
+//            {
+//                itemDescriptionParent.SetActive(true);
+//                itemDescriptionImage.sprite = hoveredItem.icon;
+//                itemDescriptionTxt.text = hoveredItem.description;
+//                descriptionItemNameTxt.text = hoveredItem.name;
+//                return;
+//            }
+//        }
+//        itemDescriptionParent.SetActive(false);
+//    }
+
+//    private void PopulateCraftingGrid()
+//    {
+//        for(int i = craftingGrid.childCount - 1; i >= 0; i--)
+//        {
+//            Destroy(craftingGrid.GetChild(i).gameObject);
+//        }
+
+//        foreach(ARecipe recipe in allRecipes)
+//        {
+//            GameObject btnObj = Instantiate(craftingBTNprefab, craftingGrid);
+
+//            Image img = btnObj.transform.GetChild(0).GetComponent<Image>();
+//            img.sprite = recipe.result.icon;
+
+//            Button btn = btnObj.GetComponent<Button>();
+
+//            btn.interactable = CanCraft(recipe);
+//            btn.onClick.RemoveAllListeners();
+//            btn.onClick.AddListener(() => Craft(recipe));
+//        }
+//    }
+
+//    public void Craft(ARecipe recipe)
+//    {
+//        if (!CanCraft(recipe))
+//        {
+//            return;
+//        }
+
+//        ConsumeIngredients(recipe);
+//        AddItem(recipe.result, recipe.resultAmount);
+
+//        PopulateCraftingGrid();
+//    }
+
+//    private void ConsumeIngredients(ARecipe recipe)
+//    {
+//        foreach(Ingredient ingredient in recipe.ingredients)
+//        {
+//            int remaining = ingredient.amount;
+
+//            foreach(ASlot slot in allSlots)
+//            {
+//                if(!slot.HasItem()) continue;
+//                if (slot.GetItem() != ingredient.item) continue;
+
+//                int take = Mathf.Min(slot.GetAmount(), remaining);
+//                slot.SetItem(slot.GetItem(), slot.GetAmount() - take);
+
+//                if(slot.GetAmount() <= 0)
+//                    slot.ClearSlot();
+
+//                remaining -= take;
+//                if (remaining <= 0)
+//                    break;
+//            }
+//        }
+//    }
+
+//    public bool CanCraft(ARecipe recipe)
+//    {
+//        foreach(Ingredient ingredient in recipe.ingredients)
+//        {
+//            int totalFound = 0;
+
+//            foreach(ASlot slot in allSlots)
+//            {
+//                if(slot.HasItem() && slot.GetItem() == ingredient.item)
+//                {
+//                    totalFound += slot.GetAmount();
+//                }
+//            }
+
+//            if (totalFound < ingredient.amount)
+//                return false;
+//        }
+
+//        return true;
+//    }
+//}

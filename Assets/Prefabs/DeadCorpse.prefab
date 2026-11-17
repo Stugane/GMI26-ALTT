@@ -523,6 +523,10 @@ GameObject:
   - component: {fileID: 5300126293263932245}
   - component: {fileID: 7726187198789326599}
   - component: {fileID: 2950173455490570041}
+  - component: {fileID: 4204928934642849517}
+  - component: {fileID: 3649168908771286756}
+  - component: {fileID: 4162736440645253655}
+  - component: {fileID: 5120840315170178650}
   m_Layer: 8
   m_Name: DeadCorpse
   m_TagString: Enemy
@@ -555,7 +559,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2655093958605670532}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 36078ab0369161e49a29d349ae3e0739, type: 3}
   m_Controller: {fileID: 9100000, guid: 40db3173a05ae3242b1c182a09b0a183, type: 2}
   m_CullingMode: 1
@@ -613,6 +617,89 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &4204928934642849517
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2655093958605670532}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3649168908771286756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2655093958605670532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d570229902e9713418e05f55551ad1b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TDeath
+--- !u!195 &4162736440645253655
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2655093958605670532}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &5120840315170178650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2655093958605670532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97ba29bcd2b3f144baf90705b64d5b22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AEnemyNavMov
+  currentState: 0
+  patrolMode: 1
+  randomWaypointOrder: 0
+  randomPatrolRadius: 10
+  patrolPoints: []
+  player: {fileID: 4173116282279969111, guid: 4484da8a11b8f5849966dbf8546d82b7, type: 3}
+  patrolSpeed: 2
+  chaseSpeed: 4
+  chaseDistance: 4
+  viewDistance: 10
+  viewAngle: 90
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 64
+  patrolMaterial: {fileID: 2100000, guid: 910c5bb2d6e6a42439ff1a0d5a453a12, type: 2}
+  chaseMaterial: {fileID: 2100000, guid: b9e39fd6f3b770b4285b7deb6aedb6e4, type: 2}
 --- !u!1 &2947175800745622118
 GameObject:
   m_ObjectHideFlags: 0
