@@ -51,7 +51,7 @@ public class AInventory : MonoBehaviour
     public TextMeshProUGUI itemDescriptionTxt;
 
     //Crafting
-    public List<ARecipe> allRecipes = new List<ARecipe>();
+    public ARecipe[] allRecipes = new ARecipe[0]; //Change to higher number if you want to add more recipes
     public Transform craftingGrid;
     public GameObject craftingBTNprefab;
 
