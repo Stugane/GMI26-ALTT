@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 public class AInventory : MonoBehaviour
 {
@@ -55,10 +56,14 @@ public class AInventory : MonoBehaviour
     public Transform craftingGrid;
     public GameObject craftingBTNprefab;
 
+    //array test
+    //private ASlot[] allSlots = new ASlot[24];
+    //private ASlot[] inventorySlots = new ASlot[18];
+    //private ASlot[] hotbarSlots = new ASlot[6];
     private List<ASlot> inventorySlots = new List<ASlot>();
-    private List<ASlot> hotbarSlots = new List<ASlot>();
     private List<ASlot> allSlots = new List<ASlot>();
     private List<AItem> nearbyItems = new List<AItem>();
+    private List<ASlot> hotbarSlots = new List<ASlot>();
 
     private ASlot draggedSlot = null;
 
@@ -67,6 +72,10 @@ public class AInventory : MonoBehaviour
 
     private void Awake()
     {
+        //Array test
+        //inventorySlots = inventorySlotParent.GetComponentsInChildren<ASlot>();
+        //hotbarSlots = hotbarObj.GetComponentsInChildren<ASlot>();
+
         inventorySlots.AddRange(inventorySlotParent.GetComponentsInChildren<ASlot>());
         hotbarSlots.AddRange(hotbarObj.GetComponentsInChildren<ASlot>());
 

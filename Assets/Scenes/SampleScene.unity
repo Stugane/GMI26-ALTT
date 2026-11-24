@@ -453,6 +453,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DeadCorpse
       objectReference: {fileID: 0}
+    - target: {fileID: 2655093958605670532, guid: a11204b6d108aff4aa6eee4634cb70ff, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5011629497552242581, guid: a11204b6d108aff4aa6eee4634cb70ff, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.096935
